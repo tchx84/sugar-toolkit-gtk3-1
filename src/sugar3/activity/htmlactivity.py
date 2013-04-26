@@ -33,7 +33,7 @@ class HTMLActivity(activity.Activity):
         scrolled_window.add(self._web_view)
         self._web_view.show()
 
-        index_path = os.path.join(activity.get_bundle_path(), "index.html")
+        index_path = os.path.join(activity.get_bundle_path(), handle.launch_url)
         self._web_view.load_uri('file://' + index_path)
 
         self.set_canvas(scrolled_window)

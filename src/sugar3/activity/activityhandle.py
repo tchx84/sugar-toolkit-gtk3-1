@@ -24,7 +24,7 @@ class ActivityHandle(object):
     """Data structure storing simple activity metadata"""
 
     def __init__(self, activity_id=None, object_id=None, uri=None,
-                 invited=False):
+                 invited=False, launch_url='index.html'):
         """Initialise the handle from activity_id
 
         activity_id -- unique id for the activity to be
@@ -48,11 +48,14 @@ class ActivityHandle(object):
             example or web pages)
         invited -- the activity is being launched for handling an invite
                    from the network
+        launch_url -- for web activities, the html that will be
+            launched instead of index.html
         """
         self.activity_id = activity_id
         self.object_id = object_id
         self.uri = uri
         self.invited = invited
+        self.launch_url = launch_url
 
     def get_dict(self):
         """Retrieve our settings as a dictionary"""

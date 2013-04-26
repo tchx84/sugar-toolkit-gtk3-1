@@ -84,6 +84,10 @@ def main():
                       action='store_true', default=False,
                       help='the activity is being launched for handling an '
                            'invite from the network')
+    parser.add_option('-l', '--launch_url', dest='launch_url',
+                      default='index.html',
+                      help='for web activities, the html that will be launched '
+                           'instead of index.html')
     (options, args) = parser.parse_args()
 
     logger.start()
@@ -124,7 +128,7 @@ def main():
     activity_handle = activityhandle.ActivityHandle(
             activity_id=options.activity_id,
             object_id=options.object_id, uri=options.uri,
-            invited=options.invited)
+            invited=options.invited, launch_url=options.launch_url)
 
     if options.single_process is True:
         sessionbus = dbus.SessionBus()
