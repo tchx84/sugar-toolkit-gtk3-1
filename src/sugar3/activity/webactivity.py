@@ -28,7 +28,6 @@ assert GdkX11
 from gi.repository import SugarExt
 from sugar3.activity import activity
 
-
 class WebActivity(Gtk.Window):
     def __init__(self, handle):
         Gtk.Window.__init__(self)
@@ -44,6 +43,7 @@ class WebActivity(Gtk.Window):
 
         self.connect("key-press-event", self._key_press_event_cb)
         self.connect('realize', self._realize_cb)
+        self.connect('destroy', self._destroy_cb)
 
         context = WebKit2.WebContext.get_default()
         context.register_uri_scheme("activity", self._app_scheme_cb, None)
@@ -66,6 +66,10 @@ class WebActivity(Gtk.Window):
         xid = window.get_window().get_xid()
         SugarExt.wm_set_bundle_id(xid, self._bundle_id)
         SugarExt.wm_set_activity_id(xid, str(self._activity_id))
+
+    def _destroy_cb(self, window):
+        self.destroy()
+        Gtk.main_quit()
 
     def _loading_changed_cb(self, web_view, load_event):
         if load_event == WebKit2.LoadEvent.FINISHED:
