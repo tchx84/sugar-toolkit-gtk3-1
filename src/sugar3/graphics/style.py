@@ -114,6 +114,7 @@ SMALL_ICON_SIZE = zoom(55 * 0.5)
 MEDIUM_ICON_SIZE = zoom(55 * 1.5)
 LARGE_ICON_SIZE = zoom(55 * 2.0)
 XLARGE_ICON_SIZE = zoom(55 * 2.75)
+MENU_ICON_SIZE = zoom(33)
 
 settings = Gio.Settings('org.sugarlabs.font')
 FONT_SIZE = settings.get_double('default-size')
