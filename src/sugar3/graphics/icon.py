@@ -32,6 +32,7 @@ from gi.repository import GdkPixbuf
 from gi.repository import Rsvg
 import cairo
 
+from sugar3.graphics import style
 from sugar3.graphics.xocolor import XoColor
 from sugar3.util import LRU
 
@@ -343,6 +344,25 @@ class Icon(Gtk.Image):
         self._file = None
         self._alpha = 1.0
         self._scale = 1.0
+
+        if 'pixel_size' not in kwargs:
+            kwargs['pixel_size'] = style.STANDARD_ICON_SIZE
+
+        #FIXME: deprecate icon_size
+        if 'icon_size' in kwargs:
+            logging.warning("icon_size is deprecated. Use pixel_size instead.")
+            logging.debug(kwargs['icon_size'])
+
+            menu_sizes = (Gtk.IconSize.MENU, Gtk.IconSize.DND,
+                          Gtk.IconSize.SMALL_TOOLBAR, Gtk.IconSize.BUTTON)
+
+            if kwargs['icon_size'] in menu_sizes:
+                kwargs['pixel_size'] = style.MENU_ICON_SIZE
+
+            elif kwargs['icon_size'] == Gtk.IconSize.LARGE_TOOLBAR:
+                kwargs['pixel_size'] = style.STANDARD_ICON_SIZE
+
+            kwargs.pop('icon_size')
 
         GObject.GObject.__init__(self, **kwargs)
 
