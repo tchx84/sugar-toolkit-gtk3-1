@@ -32,6 +32,7 @@ from gi.repository import GdkPixbuf
 from gi.repository import Rsvg
 import cairo
 
+from sugar3.graphics import style
 from sugar3.graphics.xocolor import XoColor
 from sugar3.util import LRU
 
@@ -335,6 +336,10 @@ class Icon(Gtk.Image):
 
     __gtype_name__ = 'SugarIcon'
 
+    #FIXME: deprecate icon_size
+    _MENU_SIZES = (Gtk.IconSize.MENU, Gtk.IconSize.DND,
+                   Gtk.IconSize.SMALL_TOOLBAR, Gtk.IconSize.BUTTON)
+
     def __init__(self, **kwargs):
         self._buffer = _IconBuffer()
         # HACK: need to keep a reference to the path so it doesn't get garbage
@@ -343,6 +348,10 @@ class Icon(Gtk.Image):
         self._file = None
         self._alpha = 1.0
         self._scale = 1.0
+
+        #FIXME: deprecate icon_size
+        if 'icon_size' in kwargs:
+            logging.warning("icon_size is deprecated. Use pixel_size instead.")
 
         GObject.GObject.__init__(self, **kwargs)
 
@@ -362,10 +371,17 @@ class Icon(Gtk.Image):
         if self._buffer.file_name != self.props.file:
             self._buffer.file_name = self.props.file
 
+        #FIXME: deprecate icon_size
+        if self.props.icon_size in self._MENU_SIZES:
+            self.props.pixel_size = style.MENU_ICON_SIZE
+        elif self.props.icon_size == Gtk.IconSize.LARGE_TOOLBAR:
+            self.props.pixel_size = style.STANDARD_ICON_SIZE
+
         if self.props.pixel_size == -1:
-            valid_, width, height = Gtk.icon_size_lookup(self.props.icon_size)
-        else:
-            width = height = self.props.pixel_size
+            self.props.pixel_size = style.STANDARD_ICON_SIZE
+
+        width = height = self.props.pixel_size
+
         if self._buffer.width != width or self._buffer.height != height:
             self._buffer.width = width
             self._buffer.height = height
