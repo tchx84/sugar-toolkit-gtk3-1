@@ -821,6 +821,9 @@ class CellRendererIcon(Gtk.CellRenderer):
     def _scroll_end_cb(self, event):
         self._is_scrolling = False
 
+    def is_scrolling(self):
+        return self._is_scrolling
+
     def __del__(self):
         self._palette_invoker.detach()
 
@@ -1014,8 +1017,12 @@ class CellRendererIcon(Gtk.CellRenderer):
                 self._buffer.stroke_color = stroke_color
 
         else:
-            self._buffer.fill_color = self._fill_color
-            self._buffer.stroke_color = self._stroke_color
+            if self._xo_color is not None:
+                self._buffer.fill_color = self._xo_color.get_fill_color()
+                self._buffer.stroke_color = self._xo_color.get_stroke_color()
+            else:
+                self._buffer.fill_color = self._fill_color
+                self._buffer.stroke_color = self._stroke_color
 
         surface = self._buffer.get_surface()
         if surface is None:
