@@ -787,8 +787,6 @@ class CellRendererIcon(Gtk.CellRenderer):
     }
 
     def __init__(self, tree_view):
-        from sugar3.graphics.palette import CellRendererInvoker
-
         self._buffer = _IconBuffer()
         self._buffer.cache = True
         self._xo_color = None
@@ -797,7 +795,7 @@ class CellRendererIcon(Gtk.CellRenderer):
         self._prelit_fill_color = None
         self._prelit_stroke_color = None
         self._active_state = False
-        self._palette_invoker = CellRendererInvoker()
+        # self._palette_invoker = CellRendererInvoker()
         self._cached_offsets = False
 
         Gtk.CellRenderer.__init__(self)
@@ -808,7 +806,7 @@ class CellRendererIcon(Gtk.CellRenderer):
                           self.__button_release_event_cb)
 
         self._tree_view = tree_view
-        self._palette_invoker.attach_cell_renderer(tree_view, self)
+        # self._palette_invoker.attach_cell_renderer(tree_view, self)
 
         self._is_scrolling = False
 
@@ -817,18 +815,18 @@ class CellRendererIcon(Gtk.CellRenderer):
         scrolled.connect('scroll-end', self._scroll_end_cb)
 
     def _scroll_start_cb(self, event):
-        self._palette_invoker.detach()
+        # self._palette_invoker.detach()
         self._is_scrolling = True
 
     def _scroll_end_cb(self, event):
-        self._palette_invoker.attach_cell_renderer(self._tree_view, self)
+        # self._palette_invoker.attach_cell_renderer(self._tree_view, self)
         self._is_scrolling = False
 
     def is_scrolling(self):
         return self._is_scrolling
 
-    def __del__(self):
-        self._palette_invoker.detach()
+    # def __del__(self):
+        # self._palette_invoker.detach()
 
     def __button_press_event_cb(self, widget, event):
         if self._point_in_cell_renderer(widget, event.x, event.y):
@@ -840,8 +838,10 @@ class CellRendererIcon(Gtk.CellRenderer):
     def create_palette(self):
         return None
 
+    # TODO
     def get_palette_invoker(self):
-        return self._palette_invoker
+        pass
+        # return self._palette_invoker
 
     palette_invoker = GObject.property(type=object, getter=get_palette_invoker)
 

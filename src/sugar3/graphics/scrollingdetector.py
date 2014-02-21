@@ -71,3 +71,5 @@ def connect_treeview_to_detector(treeview, scrolling_detector):
         for cell_renderer in column.get_cells():
             if isinstance(cell_renderer, CellRendererIcon):
                 cell_renderer.connect_to_scroller(scrolling_detector)
+    if hasattr(treeview, 'connect_to_scroller'):
+        treeview.connect_to_scroller(scrolling_detector)

@@ -223,6 +223,7 @@ class _PaletteMenuWidget(Gtk.Menu):
         x = event.x_root
         y = event.y_root
 
+        # TODO REMOVE
         if type(self._invoker) is CellRendererInvoker:
             in_invoker = self._invoker.point_in_cell_renderer(x, y)
         else:
@@ -238,6 +239,7 @@ class _PaletteMenuWidget(Gtk.Menu):
         x = event.x_root
         y = event.y_root
 
+        # TODO REMOVE
         if type(self._invoker) is CellRendererInvoker:
             in_invoker = self._invoker.point_in_cell_renderer(x, y)
         else:
@@ -1510,3 +1512,116 @@ class CellRendererInvoker(Invoker):
 
     def get_default_position(self):
         return self.AT_CURSOR
+
+
+class TreeViewInvoker(Invoker):
+    def __init__(self):
+        Invoker.__init__(self)
+
+        self._tree_view = None
+        self._motion_hid = None
+        self._leave_hid = None
+        self._release_hid = None
+        self._long_pressed_hid = None
+        self._position_hint = self.AT_CURSOR
+
+        self._long_pressed_controller = SugarGestures.LongPressController()
+
+        self._mouse_detector = MouseSpeedDetector(200, 5)
+
+        self._tree_view = None
+        self._path = None
+        self._column = None
+
+        self.palette = None
+
+    def attach_treeview(self, tree_view):
+        self._tree_view = tree_view
+
+        self._motion_hid = tree_view.connect('motion-notify-event',
+                                             self.__motion_notify_event_cb)
+        self._enter_hid = tree_view.connect('enter-notify-event',
+                                            self.__enter_notify_event_cb)
+        self._leave_hid = tree_view.connect('leave-notify-event',
+                                            self.__leave_notify_event_cb)
+        self._release_hid = tree_view.connect('button-release-event',
+                                              self.__button_release_event_cb)
+        self._long_pressed_hid = self._long_pressed_controller.connect(
+            'pressed', self.__long_pressed_event_cb, tree_view)
+        self._long_pressed_controller.attach(
+            tree_view,
+            SugarGestures.EventControllerFlags.NONE)
+
+        self._mouse_detector.connect('motion-slow', self._mouse_slow_cb)
+        self._mouse_detector.parent = tree_view
+        Invoker.attach(self, tree_view)
+
+    def detach(self):
+        Invoker.detach(self)
+        self._tree_view.disconnect(self._motion_hid)
+        self._tree_view.disconnect(self._enter_hid)
+        self._tree_view.disconnect(self._leave_hid)
+        self._tree_view.disconnect(self._release_hid)
+        self._long_pressed_controller.detach(self._tree_view)
+        self._long_pressed_controller.disconnect(self._long_pressed_hid)
+        self._mouse_detector.disconnect_by_func(self._mouse_slow_cb)
+
+    def get_rect(self):
+        return self._tree_view.get_background_area(self._path, self._column)
+
+    def get_toplevel(self):
+        return self._tree_view.get_toplevel()
+
+    def __motion_notify_event_cb(self, widget, event):
+        """
+        detectar cuando se cambia de celda
+        poner self path y column a la celda nueva
+        y redibujar las cells anterior y nueva
+        """
+        path, column, x_, y_ = self._tree_view.get_path_at_pos(int(event.x),
+                                                               int(event.y))
+        if path != self._path or column != self._column:
+            self._redraw_cell(self._path, self._column)
+            self._redraw_cell(path, column)
+
+            self._path = path
+            self._column = column
+
+            if self.palette is not None:
+                self.palette.popdown(immediate=True)
+                self.palette = None
+
+            self._mouse_detector.start()
+
+    def _redraw_cell(self, path, column):
+        area = self._tree_view.get_background_area(path, column)
+        x, y = \
+            self._tree_view.convert_bin_window_to_widget_coords(area.x, area.y)
+        self._tree_view.queue_draw_area(x, y, area.width, area.height)
+
+    def __enter_notify_event_cb(self, widget, event):
+        logging.debug("__enter_notify_event_cb")
+
+    def __leave_notify_event_cb(self, widget, event):
+        logging.debug("__leave_notify_event_cb")
+
+    def __button_release_event_cb(self, widget, event):
+        logging.debug("__button_release_event_cb")
+
+    def __long_pressed_event_cb(self, controller, x, y, widget):
+        logging.debug("__long_pressed_event_cb")
+
+    def _mouse_slow_cb(self, widget):
+        self._mouse_detector.stop()
+        self._change_palette()
+
+    def _change_palette(self):
+        if self.palette is not None:
+            self.palette.popdown(immediate=True)
+
+        self.palette  = self._tree_view.create_palette(self._path, self._column)
+        self.emit('mouse-enter')
+
+    def notify_popdown(self):
+        Invoker.notify_popdown(self)
+        self.palette = None
