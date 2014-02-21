@@ -807,6 +807,7 @@ class CellRendererIcon(Gtk.CellRenderer):
         tree_view.connect('button-release-event',
                           self.__button_release_event_cb)
 
+        self._tree_view = tree_view
         self._palette_invoker.attach_cell_renderer(tree_view, self)
 
         self._is_scrolling = False
@@ -816,9 +817,11 @@ class CellRendererIcon(Gtk.CellRenderer):
         scrolled.connect('scroll-end', self._scroll_end_cb)
 
     def _scroll_start_cb(self, event):
+        self._palette_invoker.detach()
         self._is_scrolling = True
 
     def _scroll_end_cb(self, event):
+        self._palette_invoker.attach_cell_renderer(self._tree_view, self)
         self._is_scrolling = False
 
     def is_scrolling(self):
