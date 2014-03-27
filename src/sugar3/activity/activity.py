@@ -753,6 +753,16 @@ class Activity(Window, Gtk.Container):
             self.metadata['buddies_id'] = json.dumps(buddies_dict.keys())
             self.metadata['buddies'] = json.dumps(self._get_buddies())
 
+        def get_last_launch():
+            return int(self.metadata['launch-times'].split(', ')[-1])
+
+        spent_time = int(time.time()) - get_last_launch()
+
+        if 'spent-times' in self.metadata:
+            self.metadata['spent-times'] += ', %d' % spent_time
+        else:
+            self.metadata['spent-times'] = str(spent_time)
+
         preview = self.get_preview()
         if preview is not None:
             self.metadata['preview'] = dbus.ByteArray(preview)
