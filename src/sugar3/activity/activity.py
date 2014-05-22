@@ -794,6 +794,10 @@ class Activity(Window, Gtk.Container):
             self.metadata['buddies_id'] = json.dumps(buddies_dict.keys())
             self.metadata['buddies'] = json.dumps(self._get_buddies())
 
+        # Accumulate the last spent time.
+        if self._active:
+            self._update_spent_time(False)
+
         def set_last_value(values_list, new_value):
             if ', ' not in values_list:
                 return '%d' % new_value
